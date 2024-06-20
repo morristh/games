@@ -1,23 +1,31 @@
 from tkinter import *
 from tkinter import ttk
 import random
-import game_over
+import devtools.game_over
 
 
 def __main__():
     root = Tk()
-    Board(root, 20)
+    SnakeGame(root, 20)
     root.mainloop()
 
-class Board:
+class SnakeGame:
     def __init__(self, root, size: int):
         self.parent = root
         
         # Title and icon
         self.parent.title('Snake')
-        self.parent.iconbitmap(default='snake_icon3.ico')
+        self.parent.iconbitmap(default='../icons/snake_icon3.ico')
+
+        self.setup_game()
+        
+        root.bind('<Up>', lambda e: setattr(self, 'direction', 'Up'))
+        root.bind('<Down>', lambda e: setattr(self, 'direction', 'Down'))
+        root.bind('<Left>', lambda e: setattr(self, 'direction', 'Left'))
+        root.bind('<Right>', lambda e: setattr(self, 'direction', 'Right'))
 
 
+    def setup_game(self):
         self.board_frame = ttk.Frame(self.parent)
         self.board_frame.grid()
         self.game_speed = 200 # milliseconds per update
@@ -27,8 +35,14 @@ class Board:
         self.board_size = 11
         self.square_size = 25
 
-        self.snakeX = [2,2,2]           # Snake x-coords
-        self.snakeY = [-1,-1,-1]        # Snake y-coords
+
+        # Snake start position
+        snake_start_length = 3
+        x_start = self.board_size // 2
+        self.snakeX = [x_start]*snake_start_length  # Snake x-coords
+        self.snakeY = [-1]*snake_start_length       # Snake y-coords
+
+        # Snake start direction
         self.direction = 'Down'         # Start direction
         self.vertical_direction = 1      # Start going down
         self.horisontal_direction = 0    # Not moving horisontally
@@ -36,20 +50,14 @@ class Board:
         self.fruitX = random.randint(0, self.board_size-1)
         self.fruitY = random.randint(0, self.board_size-1)
 
-        self.create_game_window()
+        self._create_game_window()
         
-        self.draw_snake()
-        self.parent.after(self.game_speed, self.move_snake)
-        
-        root.bind('<Up>', lambda e: setattr(self, 'direction', 'Up'))
-        root.bind('<Down>', lambda e: setattr(self, 'direction', 'Down'))
-        root.bind('<Left>', lambda e: setattr(self, 'direction', 'Left'))
-        root.bind('<Right>', lambda e: setattr(self, 'direction', 'Right'))
+        self._draw_snake()
+        self.parent.after(self.game_speed, self._move_snake)
 
-
-    def create_game_window(self):
+    def _create_game_window(self):
         # Create the game board
-        self.board = self.create_board(board_size=self.board_size, 
+        self.board = self._create_board(board_size=self.board_size, 
                                       square_size=self.square_size)
         # Draw the first fruit
         self.board[self.fruitY][self.fruitX].configure(background=self.fruit_color)
@@ -78,7 +86,7 @@ class Board:
                         sticky='nswe')
         
 
-    def create_board(self, board_size, square_size):
+    def _create_board(self, board_size, square_size):
         board = []
         for row in range(board_size):
             board_row = []
@@ -95,22 +103,22 @@ class Board:
         return board
     
 
-    def draw_snake(self):
+    def _draw_snake(self):
         for i in range(0, len(self.snakeX)):
             self.board[self.snakeY[i]][self.snakeX[i]].configure(background=self.snake_color)
     
 
-    def move_snake(self):
+    def _move_snake(self):
         # get new direction and head location
-        self.set_directions()
+        self._set_directions()
         newY = self.snakeY[0] + self.vertical_direction
         newX = self.snakeX[0] + self.horisontal_direction
 
         # Check if new position is valid
-        validPosition = self.check_valid_position(newY, newX)
+        validPosition = self._check_valid_position(newY, newX)
 
         # Check if eaten fruit
-        ateFruit = self.check_fruit(newY, newX)
+        ateFruit = self._check_fruit(newY, newX)
 
         # Draw new head and add to list
         if validPosition:
@@ -125,13 +133,13 @@ class Board:
                 self.snakeX.pop()
 
             # Move again
-            self.parent.after(self.game_speed, self.move_snake)
+            self.parent.after(self.game_speed, self._move_snake)
         else:
-            self.game_lost()
+            self._game_lost()
             print('text')
 
 
-    def set_directions(self): # TODO controlls are still a bit slow to update. Should have this check when pressing buttons instead
+    def _set_directions(self): # TODO controlls are still a bit slow to update. Should have this check when pressing buttons instead
         """Sets direction of snake. Snake is not allowed to turn 180 degrees and
             if the player tries, nothing will happen.
             
@@ -157,14 +165,61 @@ class Board:
                     self.vertical_direction = 0
 
 
-    def game_lost(self):
+    def _game_lost(self):
         for i in range(0, len(self.snakeX)):
             self.board[self.snakeY[i]][self.snakeX[i]].configure(background='#f02222')
-        game_over.GameOverScreen(self.parent)
+        # devtools.game_over.GameOverScreen(self.parent)
+
+        self.game_over_window = Toplevel(self.parent)
+        ttk.Label(self.game_over_window, text='You lost', padding=5).grid(column=0, row=0, columnspan=4)
+
+        ttk.Label(self.game_over_window, text='Score:', padding=5).grid(column=0, row=1, sticky='e')
+        ttk.Label(self.game_over_window, text=str(self.game_score.get()), padding=5).grid(column=1, row=1, sticky='w')
+        ttk.Label(self.game_over_window, text='High score:', padding=5).grid(column=2, row=1, sticky='e')
+
+        high_score = self.get_high_score()
+        ttk.Label(self.game_over_window, text=high_score, padding=5).grid(column=3, row=1, sticky='w')
 
 
+        retry_btn = ttk.Button(self.game_over_window, 
+                               text='Retry', 
+                               padding=5, 
+                               command=self._retry_button,
+                               width=10)
+        retry_btn.grid(column=0, row=2, columnspan=2, padx=5, sticky='e')
 
-    def check_valid_position(self, newY, newX):
+        exit_btn = ttk.Button(self.game_over_window, 
+                              text='Exit', 
+                              padding=5, 
+                              command=self.parent.destroy,
+                              width=10,)
+        exit_btn.grid(column=2, row=2, columnspan=2, padx=5, sticky='w')
+        
+        self.game_over_window.grid_columnconfigure(0, weight=1)
+        self.game_over_window.grid_columnconfigure(1, weight=1)
+        self.game_over_window.grid_columnconfigure(2, weight=1)
+        self.game_over_window.grid_columnconfigure(3, weight=1)
+
+    def get_high_score(self):
+        file_path = '../score_data/high_score.txt'
+        with open(file_path, 'r') as file:
+            high_score = file.read()
+        print(f'old highscore: {high_score}')
+        if self.game_score.get() > int(high_score):
+            high_score = str(self.game_score.get())
+            print(f'new highscore: {high_score}')
+            with open(file_path, 'w') as file:
+                file.write(high_score)
+        return high_score
+
+
+    def _retry_button(self):
+        self.game_over_window.destroy()
+        self.board_frame.destroy()
+        self.setup_game()
+
+
+    def _check_valid_position(self, newY, newX):
         # Snake is not allowed outside of game board
         if newY >= self.board_size or newX >= self.board_size or newY < 0 or newX < 0:
             return False
@@ -176,7 +231,7 @@ class Board:
         return True
 
 
-    def check_fruit(self, newY, newX):
+    def _check_fruit(self, newY, newX):
         if newY == self.fruitY and newX == self.fruitX:
             self.game_score.set(self.game_score.get() + 1)
 

@@ -1,0 +1,9 @@
+README.md
+setup.py
+snake/devtools/__init__.py
+snake/devtools/game_over.py
+snake/devtools/snakeGame.py
+snake/snake.egg-info/PKG-INFO
+snake/snake.egg-info/SOURCES.txt
+snake/snake.egg-info/dependency_links.txt
+snake/snake.egg-info/top_level.txt
