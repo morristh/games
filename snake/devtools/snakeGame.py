@@ -19,10 +19,10 @@ class SnakeGame:
 
         self.setup_game()
         
-        root.bind('<Up>', lambda e: setattr(self, 'direction', 'Up'))
-        root.bind('<Down>', lambda e: setattr(self, 'direction', 'Down'))
-        root.bind('<Left>', lambda e: setattr(self, 'direction', 'Left'))
-        root.bind('<Right>', lambda e: setattr(self, 'direction', 'Right'))
+        root.bind('<Up>', lambda e: self.game_logic.set_new_direction('Up'))
+        root.bind('<Down>', lambda e: self.game_logic.set_new_direction('Down'))
+        root.bind('<Left>', lambda e: self.game_logic.set_new_direction('Left'))
+        root.bind('<Right>', lambda e: self.game_logic.set_new_direction('Right'))
 
 
     def setup_game(self):
@@ -136,7 +136,6 @@ class SnakeGame:
             self.parent.after(self.game_speed, self._move_snake)
         else:
             self._game_lost()
-            print('text')
 
 
     def _set_directions(self): # TODO controlls are still a bit slow to update. Should have this check when pressing buttons instead
@@ -204,10 +203,8 @@ class SnakeGame:
         file_path = '../score_data/high_score.txt'
         with open(file_path, 'r') as file:
             high_score = file.read()
-        print(f'old highscore: {high_score}')
         if self.game_score.get() > int(high_score):
             high_score = str(self.game_score.get())
-            print(f'new highscore: {high_score}')
             with open(file_path, 'w') as file:
                 file.write(high_score)
         return high_score
