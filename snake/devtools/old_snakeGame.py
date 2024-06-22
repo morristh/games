@@ -4,10 +4,9 @@ import random
 import devtools.game_over
 
 
-def __main__():
-    root = Tk()
-    SnakeGame(root, 20)
-    root.mainloop()
+"""
+This file is not used anymore.
+"""
 
 class SnakeGame:
     def __init__(self, root, size: int):
@@ -19,10 +18,10 @@ class SnakeGame:
 
         self.setup_game()
         
-        root.bind('<Up>', lambda e: self.game_logic.set_new_direction('Up'))
-        root.bind('<Down>', lambda e: self.game_logic.set_new_direction('Down'))
-        root.bind('<Left>', lambda e: self.game_logic.set_new_direction('Left'))
-        root.bind('<Right>', lambda e: self.game_logic.set_new_direction('Right'))
+        root.bind('<Up>', lambda e: setattr(self, 'direction', 'Up'))
+        root.bind('<Down>', lambda e: setattr(self, 'direction', 'Down'))
+        root.bind('<Left>', lambda e: setattr(self, 'direction', 'Left'))
+        root.bind('<Right>', lambda e: setattr(self, 'direction', 'Right'))
 
 
     def setup_game(self):
@@ -245,4 +244,4 @@ class SnakeGame:
             return True
         return False
 
-__main__()
+# __main__()
