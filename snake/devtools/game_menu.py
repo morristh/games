@@ -16,7 +16,7 @@ class GameMenu:
         # Title and icon
         self.parent.title('Snake')
         self.parent.iconbitmap(default='../icons/snake_icon3.ico')
-
+  
         self.main_frame = ttk.Frame(self.parent)
         self.main_frame.grid(column=0, row=0, sticky='nwes')
 

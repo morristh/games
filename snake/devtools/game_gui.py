@@ -24,7 +24,8 @@ class GameGUI:
         self.board_frame.grid()
         self.game_speed = self.game_logic.game_speed # milliseconds per update
         self.bg_color = '#012409'
-        self.snake_color = '#12db41'
+        # self.snake_color = '#12db41'
+        self.snake_color = self.game_logic.get_snake_color()
         self.fruit_color = '#cf8217'
         self.dead_snake_color = '#f02222'
         self.board_size = self.game_logic.board_size

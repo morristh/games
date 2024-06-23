@@ -40,6 +40,13 @@ class GameLogic:
     def get_fruit_coords(self):
         return self.fruitX, self.fruitY
     
+    
+    def get_snake_color(self):
+        with open('../settings/settings.json', 'r+') as file:
+            data = json.load(file)
+            return data['snake_color']
+
+    
     def set_new_direction(self, new_direction: str):
 
         match new_direction:

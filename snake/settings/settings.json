@@ -1,3 +1,4 @@
 {
-    "speed": 171
+    "speed": 200,
+    "snake_color": "green"
 }
